@@ -118,6 +118,7 @@ SUSTAIN offers flexible configurations to suit different workflows:
 - [x] Add save, clear chat features
 - [x] Implement caching for frequently requested queries to reduce API calls
 - [ ] Convert to web app and deploy on Azure
+- [ ] Convert to Android app
 
 
 ---
