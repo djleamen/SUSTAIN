@@ -1,4 +1,4 @@
-# 🌱 SUSTAIN: The Environmentally-Friendly AI Wrapper 🌱
+# 🌱 SUSTAIN: The Environmentally-Friendly AI 🌱
 ![SUSTAIN Logo](https://github.com/user-attachments/assets/bbb7337a-dcd5-4dd6-bded-3a264c41af46)
 
 ## Overview
