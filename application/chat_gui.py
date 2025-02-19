@@ -11,6 +11,7 @@ from tkinter import scrolledtext, PhotoImage, filedialog
 from dotenv import load_dotenv
 from sustain import SUSTAIN
 from PIL import Image, ImageTk
+import ctypes
 
 # Load environment variables from .env file
 load_dotenv()
@@ -22,7 +23,11 @@ class ChatApp:
         self.root = root
         self.root.title("SUSTAIN Chat")
         self.root.geometry("800x800")
+        self.root.iconbitmap("SUSTAINicon.ico")
         self.message_history = []
+
+        myappid = u'company.sustain.chat.1.0'
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
         # Initialize token savings
         self.total_percentage_saved = 0
@@ -43,7 +48,7 @@ class ChatApp:
         self.logo_label.pack(side=tk.LEFT, padx=10)
 
         # Info button at the top-right corner
-        self.info_button = tk.Button(self.top_frame, text="?", command=self.show_info, font=("Mangal_Pro", 14), width=3, bg="#d9d9d9")
+        self.info_button = tk.Button(self.top_frame, text='?', command=self.show_info, font=("Mangal_Pro", 14), width=3, bg="#d9d9d9")
         self.info_button.pack(side=tk.RIGHT, padx=20)
 
         # Create a chat area and entry field
@@ -62,7 +67,7 @@ class ChatApp:
         self.display_settings_message("Welcome to SUSTAIN Chat! Ask me: \"What is SUSTAIN?\" to learn more.")
 
         # Add a label to display token percentage saved
-        self.token_savings_label = tk.Label(root, text="Average token savings: 0.00%. Thank you for going green!", fg="green", font=("Courier", 16))
+        self.token_savings_label = tk.Label(root, text="Average token savings: 0.00%. Thank you for going green!", fg="#318752", font=("Mangal_Pro", 16))
         self.token_savings_label.pack(pady=10)
 
         # Create a menu bar
@@ -93,6 +98,22 @@ class ChatApp:
         if user_input:
             self.message_history.append(user_input)
             self.display_message("You: " + user_input)
+
+            # Check if user input is a math expression
+            math_answer = self.sustain.answer_math(user_input)
+            if math_answer is not None:
+                # Display the result of the math expression directly
+                self.display_message(f"SUSTAIN: {math_answer}")
+                self.display_settings_message("You saved 100% tokens by using SUSTAIN's math optimizer!")
+                self.entry.delete(0, tk.END)
+
+                # Update token savings to 100% for math queries
+                self.message_count += 1
+                self.total_percentage_saved += 100  # Save 100% savings for math queries
+                average_savings = self.total_percentage_saved / self.message_count
+                self.token_savings_label.config(text=f"Average token savings: {average_savings:.2f}%. Thank you for going green!")
+
+                return  # Exit early to prevent API call
 
             # Check if user input is a special command
             if user_input.strip().lower() == "what is sustain?":

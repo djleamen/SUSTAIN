@@ -24,37 +24,6 @@ I'm
 Can you please
 Could you please
 Would you
-?
-.
-!
-;
-:
-(
-)
-[
-]
-{
-}
-<
->
-/
-\
-|
-_
--
-=
-+
-*
-&
-^
-%
-$
-#
-@
-!
-`
-~
-,
 shall
 may
 in simple terms
