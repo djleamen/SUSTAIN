@@ -33,7 +33,7 @@ class ChatApp:
         self.top_frame.pack(fill=tk.X, pady=10)
 
         # Load and display the SUSTAIN logo
-        original_logo = Image.open("sustain_logo.png")
+        original_logo = Image.open("../SUSTAINOriginalBlackTransparentCropped.png")
         max_size = (200, 200)
         original_logo.thumbnail(max_size, Image.LANCZOS)
         self.logo = ImageTk.PhotoImage(original_logo)
@@ -43,14 +43,14 @@ class ChatApp:
         self.logo_label.pack(side=tk.LEFT, padx=10)
 
         # Info button at the top-right corner
-        self.info_button = tk.Button(self.top_frame, text="?", command=self.show_info, font=("Courier", 14), width=3, bg="#d9d9d9")
+        self.info_button = tk.Button(self.top_frame, text="?", command=self.show_info, font=("Mangal_Pro", 14), width=3, bg="#d9d9d9")
         self.info_button.pack(side=tk.RIGHT, padx=20)
 
         # Create a chat area and entry field
-        self.chat_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, state='disabled', height=25, font=("Courier", 16))
+        self.chat_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, state='disabled', height=25, font=("Mangal_Pro", 16))
         self.chat_area.pack(padx=20, pady=10, fill=tk.BOTH, expand=True)
 
-        self.entry = tk.Entry(root, font=("Courier", 16))
+        self.entry = tk.Entry(root, font=("Mangal_Pro", 16))
         self.entry.pack(padx=20, pady=10, fill=tk.X, expand=True)
         self.entry.bind("<Return>", self.send_message)
 
