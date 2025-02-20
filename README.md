@@ -22,8 +22,7 @@ Our mission is to deliver a sustainable, high-efficiency alternative to major la
 ### **Enhanced Productivity**
 - Get results faster with condensed, actionable responses.
 - Eliminate unnecessary verbose outputs by default, with the option to expand details when needed.
-
-SUSTAIN is a powerful, straight-to-the-point professional AI assistant.
+- Powerful, straight-to-the-point professional AI assistant.
 
 
 ---
