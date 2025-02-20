@@ -34,12 +34,13 @@ Our mission is to deliver a sustainable, high-efficiency alternative to major la
 - Example Conversion:  
   - **Input:** "Could you kindly explain machine learning? Thank you!" 
   - **Refined input**: "explain machine learning"
-
+- Uses Python's word2number module and strips detected math from a prompt to calculate locally - translating into 100% token savings for all math queries.
+  
 ### **2. Short-Form AI Responses**
 - Limits responses to concise, actionable outputs using optimized `max_tokens` settings.
 - Example Output:
   - **Refined input**: "explain machine learning"
-  - **Output:** "Machine learning is a field of AI that trains computers to learn patterns from data." 
+  - **Output:** "Machine learning is a field of AI that trains computers to learn patterns from data."
 
 ### **3. Environmentally-Aware Feedback**
 - Track token savings and display eco-friendly metrics to users.
