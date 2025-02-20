@@ -31,10 +31,13 @@ Our mission is to deliver a sustainable, high-efficiency alternative to major la
 
 ### **1. Token Optimization Pipeline**
 - Preprocesses user prompts to filter out unnecessary words (e.g., "Hello," "Thank you," etc.) and retain only the core intent.
-- Example Conversion:  
-  - **Input:** "Could you kindly explain machine learning? Thank you!" 
-  - **Refined input**: "explain machine learning"
-- Uses Python's word2number module and strips detected math from a prompt to calculate locally - translating into 100% token savings for all math queries.
+  - Example Conversion:  
+    - **Input:** "Could you kindly explain machine learning? Thank you!" 
+    - **Refined input**: "explain machine learning"
+- Uses Python's word2number module and intelligently strips detected math from a prompt to calculate locally instead of sending to AI, translating into 100% token savings for all math queries.
+  - Example:
+    - **Input:** "What's four times three"
+    - **Refined input**: 4*3
   
 ### **2. Short-Form AI Responses**
 - Limits responses to concise, actionable outputs using optimized `max_tokens` settings.
