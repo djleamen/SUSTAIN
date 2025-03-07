@@ -60,7 +60,7 @@ Our mission is to deliver a sustainable, high-efficiency alternative to major la
 - [x] Convert to web app and deploy on Azure
 - [x] Implement math optimization pipeline
 - [x] Implement caching for frequently requested queries to reduce API calls
-- [ ] Convert to Android, iOS apps
+- [x] Convert to Android, iOS apps
 
 ---
 
@@ -87,7 +87,11 @@ For questions or suggestions, feel free to reach out to us:
 
 [GitHub (Desktop)](https://github.com/djleamen/SUSTAIN)
 
-[GitHub (Web)](https://github.com/djleamen/SUSTAINWebApp)
+[GitHub (Web)](https://github.com/Tomasz0720/SUSTAINWebApp)
+
+[GitHub iOS](https://github.com/cafakleinn/SUSTAINForiOS)
+
+[GitHub Android](https://github.com/Tomasz0720/SUSTAINForAndroid)
 
 
 Let’s build a more sustainable AI future together!
