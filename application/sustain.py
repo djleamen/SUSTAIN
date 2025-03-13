@@ -42,7 +42,6 @@ class OpenAIClient:
             return "Error: The specified model does not exist or you do not have access to it."
         return f"Error: {str(error)}"
 
-
 class MathOptimizer:
     def __init__(self):
         # Initialize any necessary mathematical operators.
@@ -123,10 +122,6 @@ class MathOptimizer:
         except Exception as e:
             return f"Error: {str(e)}"
 
-
-
-
-
 class TextOptimizer:
     def __init__(self):
         self.nlp = spacy.load("en_core_web_sm")
@@ -185,7 +180,6 @@ class TextOptimizer:
         cleaned_items = [item.split(":")[0].strip() for item in items]
         return ", ".join(cleaned_items[:3])
 
-
 class SUSTAIN:
     def __init__(self, api_key):
         self.api_client = OpenAIClient(api_key)
@@ -205,7 +199,6 @@ class SUSTAIN:
             return math_answer
 
         if user_input in self.cache:
-            logging.info(f"Cache hit for input: {user_input}")
             return self.cache[user_input]
 
         optimized_input = self.text_optimizer.optimize_text(user_input)
@@ -214,7 +207,6 @@ class SUSTAIN:
         percentage_saved = self.calculate_percentage_saved(original_tokens, optimized_tokens)
 
         response_text = self.api_client.get_openai_response(optimized_input)
-        logging.info(f"Response: {response_text}, Tokens saved: {percentage_saved:.2f}%")
 
         self.cache[user_input] = (response_text, percentage_saved)
         return response_text, percentage_saved

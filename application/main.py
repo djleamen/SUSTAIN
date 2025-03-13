@@ -14,13 +14,10 @@ import platform
 
 # Configure logging
 log_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../sustain.log'))
-print(f"Log file path: {log_file_path}")
 logging.basicConfig(filename=log_file_path, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-logging.debug("Logging is configured")
 
 # Load environment variables from .env file
 load_dotenv()
-logging.debug("Environment variables loaded")
 
 # Function to track the token length of a message
 def track_token_length(message):
@@ -39,24 +36,17 @@ def main():
             import ctypes
             myappid = u'company.sustain.chat.1.0'
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-            logging.debug("Application ID set for Windows")
         except Exception as e:
             logging.error(f"Failed to set application ID: {str(e)}")
 
     # Create root window before setting icon
-    logging.debug("Creating root window")
-    print("Creating root window")
     root = tk.Tk()
 
     # Set the icon for both window and taskbar
     try:
         icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "SUSTAINicon.ico"))
-        logging.debug(f"Icon path: {icon_path}")
-        print(f"Icon path: {icon_path}")
         if os.path.exists(icon_path):
             root.iconbitmap(icon_path)
-            logging.debug("Icon set successfully")
-            print("Icon set successfully")
         else:
             logging.error(f"Icon file not found at: {icon_path}")
             print(f"Icon file not found at: {icon_path}")
@@ -74,27 +64,16 @@ def main():
     # Check if spaCy model is installed, if not, download it
     try:
         spacy.load("en_core_web_sm")
-        logging.debug("spaCy model loaded successfully")
-        print("spaCy model loaded successfully")
     except OSError:
         from spacy.cli import download
         download("en_core_web_sm")
-        logging.debug("spaCy model downloaded and loaded successfully")
-        print("spaCy model downloaded and loaded successfully")
 
-    logging.debug("Initializing ChatApp")
-    print("Initializing ChatApp")
     app = ChatApp(root, track_token_length)
     root.mainloop()
-    logging.debug("ChatApp main loop started")
-    print("ChatApp main loop started")
-
 
 # Run the main function
 if __name__ == "__main__":
     try:
-        logging.debug("Starting main function")
-        print("Starting main function")
         main()
     except Exception as e:
         logging.error(f"Unhandled exception: {str(e)}")
