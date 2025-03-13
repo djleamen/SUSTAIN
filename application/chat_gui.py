@@ -11,7 +11,7 @@ from tkinter import scrolledtext, PhotoImage, filedialog
 from dotenv import load_dotenv
 from sustain import SUSTAIN
 from PIL import Image, ImageTk
-import ctypes
+import platform
 
 # Load environment variables from .env file
 load_dotenv()
@@ -26,8 +26,13 @@ class ChatApp:
         self.root.iconbitmap("SUSTAINicon.ico")
         self.message_history = []
 
-        myappid = u'company.sustain.chat.1.0'
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+        if platform.system() == "Windows":
+            try:
+                import ctypes
+                myappid = u'company.sustain.chat.1.0'
+                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+            except Exception as e:
+                print(f"Failed to set application ID: {str(e)}")
 
         # Initialize token savings
         self.total_percentage_saved = 0
@@ -38,7 +43,7 @@ class ChatApp:
         self.top_frame.pack(fill=tk.X, pady=10)
 
         # Load and display the SUSTAIN logo
-        original_logo = Image.open("../SUSTAINOriginalBlackTransparentCropped.png")
+        original_logo = Image.open("SUSTAINOriginalBlackTransparentCropped.png")
         max_size = (200, 200)
         original_logo.thumbnail(max_size, Image.LANCZOS)
         self.logo = ImageTk.PhotoImage(original_logo)
