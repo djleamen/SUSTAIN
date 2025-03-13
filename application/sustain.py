@@ -131,32 +131,35 @@ class TextOptimizer:
     @staticmethod
     def load_contractions():
         return {
-            "do not": "don't", "i am": "i'm", "you are": "you're", "we are": "we're",
-            "they are": "they're", "is not": "isn't", "are not": "aren't", "cannot": "can't",
-            "could not": "couldn't", "would not": "wouldn't", "should not": "shouldn't",
-            "will not": "won't", "have not": "haven't", "has not": "hasn't", "had not": "hadn't",
-            "it is": "it's", "that is": "that's", "there is": "there's", "what is": "what's",
-            "who is": "who's", "where is": "where's", "when is": "when's", "why is": "why's",
-            "how is": "how's",
+            "I am": "I'm", "can not": "can't", "and": "&", "will not": "won't", "do not": "don't",
+            "does not": "doesn't", "is not": "isn't", "are not": "aren't", "was not": "wasn't",
+            "were not": "weren't", "have not": "haven't", "has not": "hasn't", "had not": "hadn't",
+            "would not": "wouldn't", "should not": "shouldn't", "could not": "couldn't", "it is": "it's",
+            "that is": "that's", "what is": "what's", "where is": "where's", "who is": "who's",
+            "how is": "how's", "let us": "let's", "you are": "you're", "we are": "we're", "they are": "they're",
+            "cannot": "can't"
         }
 
     @staticmethod
     def load_phrases_to_remove():
         try:
-            with open('phrases_to_remove.txt', 'r') as file:
+            with open(os.path.join(os.path.dirname(__file__), 'phrases_to_remove.txt'), 'r') as file:
                 return [line.strip() for line in file.readlines()]
         except FileNotFoundError:
             return []
 
     def optimize_text(self, text):
+        # Remove phrases to remove
         for phrase in self.phrases_to_remove:
-            text = text.replace(phrase, "")
+            text = re.sub(r'\b' + re.escape(phrase) + r'\b', '', text, flags=re.IGNORECASE)
+        # Convert to contractions
         text = self.convert_to_contractions(text)
+        # Remove excessive spaces
         return ' '.join(text.split()).strip()
 
     def convert_to_contractions(self, text):
         for phrase, contraction in self.contractions.items():
-            text = re.sub(r'\b' + phrase + r'\b', contraction, text, flags=re.IGNORECASE)
+            text = re.sub(r'\b' + re.escape(phrase) + r'\b', contraction, text, flags=re.IGNORECASE)
         return text
 
     @staticmethod
@@ -196,7 +199,7 @@ class SUSTAIN:
         math_answer = self.answer_math(user_input)
         if math_answer is not None:
             # Return the math result directly without API call
-            return math_answer
+            return math_answer, 100  # Assuming 100% token savings for math optimizations
 
         if user_input in self.cache:
             return self.cache[user_input]

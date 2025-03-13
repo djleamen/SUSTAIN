@@ -108,7 +108,7 @@ class ChatApp:
             math_answer = self.sustain.answer_math(user_input)
             if math_answer is not None:
                 # Display the result of the math expression directly
-                self.display_message(f"SUSTAIN: {math_answer}")
+                self.display_message(f"SUSTAIN: Math detected! Result: {math_answer}")
                 self.display_settings_message("You saved 100% tokens by using SUSTAIN's math optimizer!")
                 self.entry.delete(0, tk.END)
 
@@ -133,7 +133,10 @@ class ChatApp:
             
             # Display the response from SUSTAIN
             self.display_message("\nSUSTAIN: " + response)
-            self.display_settings_message(f"With SUSTAIN, you saved {percentage_saved:.2f}% more tokens compared to traditional AI!\n")
+            if percentage_saved == 0:
+                self.display_settings_message("With SUSTAIN, you saved 0.00% more tokens compared to traditional AI!\n")
+            else:
+                self.display_settings_message(f"With SUSTAIN, you saved {percentage_saved:.2f}% more tokens compared to traditional AI!\n")
             self.entry.delete(0, tk.END)
 
             # Update token savings
