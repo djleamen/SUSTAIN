@@ -54,13 +54,13 @@ Our mission is to deliver a sustainable, high-efficiency alternative to major la
 ---
 
 ## Roadmap
-- [x] Implement dynamic summarization based on context length
 - [x] Provide additional eco-feedback on overall token savings
 - [x] Enhance the GUI with more user-friendly features and customization options
 - [x] Convert to web app and deploy on Azure
 - [x] Implement math optimization pipeline
 - [x] Implement caching for frequently requested queries to reduce API calls
 - [x] Convert to Android, iOS apps
+- [ ] Implement dynamic summarization based on context length
 
 ---
 
@@ -69,6 +69,8 @@ To contribute:
 1. Fork the repository.
 2. Create a new branch for your feature or fix.
 3. Submit a pull request.
+
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/djleamen/SUSTAIN)
 
 ---
 
