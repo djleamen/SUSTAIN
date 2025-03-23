@@ -39,15 +39,15 @@ When reporting an issue, please include:
 ⸻
 
 ## Proposing Changes
-	1.	Fork the Repository: Click the “Fork” button on the top right of the GitHub page.
-	2.	Create a Branch: Branch off from the main branch using a descriptive branch name. For example:
+1. Fork the Repository: Click the “Fork” button on the top right of the GitHub page.
+2. Create a Branch: Branch off from the main branch using a descriptive branch name. For example:
 
 `git checkout -b feature/your-feature-name`
 
-	3.	Develop Your Changes: Make your changes, add tests if applicable, and update documentation as needed.
-	4.	Test Your Changes: Ensure all tests pass and your changes don’t break existing functionality.
-	5.	Commit Your Changes: Use clear and concise commit messages that reference any related issue numbers.
-	6.	Submit a Pull Request: Push your branch to your fork and open a pull request against the main branch.
+3. Develop Your Changes: Make your changes, add tests if applicable, and update documentation as needed.
+4. Test Your Changes: Ensure all tests pass and your changes don’t break existing functionality.
+5. Commit Your Changes: Use clear and concise commit messages that reference any related issue numbers.
+6. Submit a Pull Request: Push your branch to your fork and open a pull request against the main branch.
 
 ---
 
