@@ -38,41 +38,65 @@ class ChatApp:
         self.total_percentage_saved = 0
         self.message_count = 0
 
+        # Initialize dark mode setting
+        self.is_dark_mode = True  # Set dark mode as the default
+
         # Create a top frame for the logo and info button
         self.top_frame = tk.Frame(root)
         self.top_frame.pack(fill=tk.X, pady=10)
 
-        # Load and display the SUSTAIN logo
-        original_logo = Image.open("SUSTAINOriginalBlackTransparentCropped.png")
-        max_size = (200, 200)
-        original_logo.thumbnail(max_size, Image.LANCZOS)
-        self.logo = ImageTk.PhotoImage(original_logo)
+        # Load and display the dark mode logo
+        logo_path = os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),
+                "assets/SUSTAINOriginalWhiteTransparentCropped.png"
+            )
+        )
+        if os.path.exists(logo_path):
+            original_logo = Image.open(logo_path)
+            max_size = (200, 200)
+            original_logo.thumbnail(max_size, Image.LANCZOS)
+            self.logo = ImageTk.PhotoImage(original_logo)
+        else:
+            raise FileNotFoundError(f"Logo file not found at: {logo_path}")
 
-        # Logo label
-        self.logo_label = tk.Label(self.top_frame, image=self.logo)
+        # Logo label with dark mode background
+        self.logo_label = tk.Label(self.top_frame, image=self.logo, bg="#1e1e1e")
         self.logo_label.pack(side=tk.LEFT, padx=10)
 
         # Info button at the top-right corner
-        self.info_button = tk.Button(self.top_frame, text='?', command=self.show_info, font=("Mangal_Pro", 14), width=3, bg="#d9d9d9")
+        self.info_button = tk.Button(
+            self.top_frame,
+            text='?',
+            command=self.show_info,
+            font=("Mangal_Pro", 14),
+            width=3,
+            bg="#3c3c3c",
+            fg="white"
+        )
         self.info_button.pack(side=tk.RIGHT, padx=20)
 
         # Create a chat area and entry field
-        self.chat_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, state='disabled', height=25, font=("Mangal_Pro", 16))
+        self.chat_area = scrolledtext.ScrolledText(
+            root,
+            wrap=tk.WORD,
+            state='disabled',
+            height=25,
+            font=("Mangal_Pro", 16)
+        )
         self.chat_area.pack(padx=20, pady=10, fill=tk.BOTH, expand=True)
 
         self.entry = tk.Entry(root, font=("Mangal_Pro", 16))
         self.entry.pack(padx=20, pady=10, fill=tk.X, expand=True)
         self.entry.bind("<Return>", self.send_message)
 
-        # Initialize the SUSTAIN API
-        self.api_key = os.getenv("OPENAI_API_KEY")
-        if not self.api_key:
-            raise ValueError("API key not found. Please set the OPENAI_API_KEY environment variable.")
-        self.sustain = SUSTAIN(api_key=self.api_key)
-        self.display_settings_message("Welcome to SUSTAIN Chat! Ask me: \"What is SUSTAIN?\" to learn more.")
-
         # Add a label to display token percentage saved
-        self.token_savings_label = tk.Label(root, text="Average token savings: 0.00%. Thank you for going green!", fg="#318752", font=("Mangal_Pro", 16))
+        self.token_savings_label = tk.Label(
+            root,
+            text="Average token savings: 0.00%. Thank you for going green!",
+            fg="#318752",
+            font=("Mangal_Pro", 16)
+        )
         self.token_savings_label.pack(pady=10)
 
         # Create a menu bar
@@ -90,12 +114,79 @@ class ChatApp:
         # Add Tools menu
         self.tools_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.menu_bar.add_cascade(label="Tools", menu=self.tools_menu)
-        self.tools_menu.add_command(label="Calculate CO2 Savings", command=self.calculate_co2_savings)
+        self.tools_menu.add_command(
+            label="Calculate CO2 Savings",
+            command=self.calculate_co2_savings
+        )
 
         # Add Help menu
         self.help_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(label="Info", command=self.show_info)
+
+        # Add View menu for dark/light mode toggle
+        self.view_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="View", menu=self.view_menu)
+        self.view_menu.add_command(
+            label="Toggle Dark/Light Mode",
+            command=self.toggle_mode
+        )
+
+        # Apply dark mode settings by default
+        self.apply_theme(self.is_dark_mode)
+
+        # Initialize the SUSTAIN API
+        self.api_key = os.getenv("OPENAI_API_KEY")
+        if not self.api_key:
+            raise ValueError(
+                "API key not found. Please set the OPENAI_API_KEY environment variable."
+            )
+        self.sustain = SUSTAIN(api_key=self.api_key)
+        self.display_settings_message(
+            "Welcome to SUSTAIN Chat! Ask me: \"What is SUSTAIN?\" to learn more."
+        )
+
+    def apply_theme(self, is_dark_mode):
+        """Apply the selected theme (dark or light) to the application."""
+        if is_dark_mode:
+            # Dark mode settings
+            bg_color, fg_color, button_bg, button_fg = "#1e1e1e", "white", "#3c3c3c", "white"
+            info_button_bg = "#4CAD75"  # Green background for info button
+            logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "assets/SUSTAINOriginalWhiteTransparentCropped.png"))
+        else:
+            # Light mode settings
+            bg_color, fg_color, button_bg, button_fg = "#f5f5f5", "black", "#d9d9d9", "black"
+            info_button_bg = "#4CAD75"  # Green background for info button
+            logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "assets/SUSTAINOriginalBlackTransparentCropped.png"))
+
+        # Apply theme to widgets
+        self.root.configure(bg=bg_color)
+        self.chat_area.configure(bg=bg_color, fg=fg_color, insertbackground=fg_color)
+        self.entry.configure(bg=bg_color, fg=fg_color, insertbackground=fg_color)
+        self.token_savings_label.configure(bg=bg_color, fg="#318752")
+        self.top_frame.configure(bg=bg_color)
+        self.info_button.configure(bg=info_button_bg, fg="#4CAD75")  # Green button with white text
+        self.menu_bar.configure(bg=bg_color, fg=fg_color)
+        self.file_menu.configure(bg=bg_color, fg=fg_color)
+        self.tools_menu.configure(bg=bg_color, fg=fg_color)
+        self.help_menu.configure(bg=bg_color, fg=fg_color)
+        self.view_menu.configure(bg=bg_color, fg=fg_color)
+        self.logo_label.configure(bg=bg_color)
+
+        # Update the logo
+        if os.path.exists(logo_path):
+            original_logo = Image.open(logo_path)
+            max_size = (200, 200)
+            original_logo.thumbnail(max_size, Image.LANCZOS)
+            self.logo = ImageTk.PhotoImage(original_logo)
+            self.logo_label.configure(image=self.logo)
+        else:
+            self.display_settings_message(f"Logo file not found at: {logo_path}")
+
+    def toggle_mode(self):
+        """Toggle between dark and light mode."""
+        self.is_dark_mode = not self.is_dark_mode
+        self.apply_theme(self.is_dark_mode)
 
     # Function to send a message to SUSTAIN
     def send_message(self, event):
@@ -187,7 +278,7 @@ class ChatApp:
         total_tokens_saved = 0
         for msg in self.message_history:
             original_tokens = self.sustain.count_tokens(msg)
-            optimized_input = self.sustain.optimize_text(msg)
+            optimized_input = self.sustain.text_optimizer.optimize_text(msg)  # Fix: Use text_optimizer to call optimize_text
             optimized_tokens = self.sustain.count_tokens(optimized_input)
             tokens_saved = original_tokens - optimized_tokens
             total_tokens_saved += tokens_saved
@@ -206,13 +297,17 @@ class ChatApp:
         )
         self.display_settings_message(message)
 
-    # Function to show information about the chat application
     def show_info(self):
+        """Show information about the chat application."""
         info_window = tk.Toplevel(self.root)
         info_window.title("Information")
         info_window.geometry("600x400")
 
-        info_window.configure(bg="#1e1e1e")  # Dark background
+        # Match the color theme of the current mode
+        bg_color = "#1e1e1e" if self.is_dark_mode else "white"
+        fg_color = "white" if self.is_dark_mode else "black"
+
+        info_window.configure(bg=bg_color)
 
         # Scrollable text widget
         info_text = (
@@ -238,7 +333,7 @@ class ChatApp:
         # Set UI for text widget
         text_widget = tk.Text(
             info_window, wrap=tk.WORD, font=("Courier", 12), padx=15, pady=10,
-            bg="#1e1e1e", fg="white", relief=tk.FLAT
+            bg=bg_color, fg=fg_color, relief=tk.FLAT
         )
         text_widget.insert(tk.END, info_text)
         text_widget.config(state='disabled')  # Make text read-only

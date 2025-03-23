@@ -44,7 +44,9 @@ def main():
 
     # Set the icon for both window and taskbar
     try:
-        icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "SUSTAINicon.ico"))
+        icon_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "assets/SUSTAINicon.ico")
+        )
         if os.path.exists(icon_path):
             root.iconbitmap(icon_path)
         else:
@@ -57,9 +59,13 @@ def main():
     # Rest of your initialization
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        logging.error("API key not found. Please set the OPENAI_API_KEY environment variable.")
+        logging.error(
+            "API key not found. Please set the OPENAI_API_KEY environment variable."
+        )
         print("API key not found. Please set the OPENAI_API_KEY environment variable.")
-        raise ValueError("API key not found. Please set the OPENAI_API_KEY environment variable.")
+        raise ValueError(
+            "API key not found. Please set the OPENAI_API_KEY environment variable."
+        )
 
     # Check if spaCy model is installed, if not, download it
     try:
