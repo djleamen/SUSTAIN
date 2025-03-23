@@ -55,7 +55,6 @@ Our mission is to deliver a sustainable, high-efficiency alternative to major la
 
 ## Roadmap
 - [x] Provide additional eco-feedback on overall token savings
-- [x] Enhance the GUI with more user-friendly features and customization options
 - [x] Convert to web app and deploy on Azure
 - [x] Implement math optimization pipeline
 - [x] Implement caching for frequently requested queries to reduce API calls
