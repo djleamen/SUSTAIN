@@ -65,10 +65,7 @@ Our mission is to deliver a sustainable, high-efficiency alternative to major la
 ---
 
 ## Contributing
-To contribute:
-1. Fork the repository.
-2. Create a new branch for your feature or fix.
-3. Submit a pull request.
+See our [Contributing](https://github.com/djleamen/SUSTAIN/blob/main/CONTRIBUTING.md) page.
 
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/djleamen/SUSTAIN)
 
