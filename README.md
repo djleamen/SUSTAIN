@@ -1,5 +1,7 @@
 # 🌱 SUSTAIN: The Environmentally-Friendly AI 🌱
 
+![Demo Preview](https://img.shields.io/badge/Demo-Interactive-brightgreen) ![Python](https://img.shields.io/badge/Python-3.8+-blue)
+
 <picture>
   <source srcset="SUSTAINOriginalWhiteTransparentCropped.png" media="(prefers-color-scheme: dark)">
   <img src="SUSTAINOriginalBlackTransparentCropped.png" alt="SUSTAIN logo">
