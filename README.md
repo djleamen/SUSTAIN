@@ -3,9 +3,9 @@
 ![Demo Preview](https://img.shields.io/badge/Demo-Interactive-brightgreen) 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue)
 ![License](https://img.shields.io/github/license/djleamen/SUSTAIN)
+![Last Commit](https://img.shields.io/github/last-commit/djleamen/SUSTAIN)
 ![Open Issues](https://img.shields.io/github/issues/djleamen/SUSTAIN)
 ![Contributors](https://img.shields.io/github/contributors/djleamen/SUSTAIN)
-![Deployed on Azure](https://img.shields.io/badge/Hosted-Azure-blue)
 
 <picture>
   <source srcset="application/assets/SUSTAINOriginalWhiteTransparentCropped.png" media="(prefers-color-scheme: dark)">
