@@ -88,7 +88,6 @@ For questions or suggestions, feel free to reach out to us:
 ---
 
 ## Links
-[Try it out!](https://sustainai.ca)
 
 [GitHub (Desktop)](https://github.com/djleamen/SUSTAIN)
 

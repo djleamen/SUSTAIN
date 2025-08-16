@@ -1,37 +1,59 @@
 """
-Description: This script creates a chat application using Tkinter that interacts with the SUSTAIN API. 
+Description: Creates a chat application using Tkinter that interacts with the SUSTAIN API.
 The chat application allows users to send messages to SUSTAIN and receive optimized responses. 
 The application also calculates the average token savings and CO2 emissions saved by using SUSTAIN.
-
 """
-# Import required libraries
-import os
-import tkinter as tk
-from tkinter import scrolledtext, PhotoImage, filedialog
-from dotenv import load_dotenv
-from sustain import SUSTAIN
-from PIL import Image, ImageTk
-import platform
 
-# Load environment variables from .env file
+import os
+import platform
+import tkinter as tk
+import ctypes
+from tkinter import filedialog, scrolledtext
+
+from dotenv import load_dotenv
+from PIL import Image, ImageTk
+from sustain import SUSTAIN
+
 load_dotenv()
 
-# Create a chat application using Tkinter
+
 class ChatApp:
-    def __init__(self, root, track_token_length):
+    '''Chat application GUI for interacting with the SUSTAIN API.'''
+
+    def __init__(self, root_window, track_token_length):
         self.track_token_length = track_token_length
-        self.root = root
+        self.root = root_window
         self.root.title("SUSTAIN Chat")
         self.root.geometry("800x800")
-        self.root.iconbitmap("SUSTAINicon.ico")
+        
+        # Set icon based on platform
+        try:
+            if platform.system() == "Windows":
+                icon_path = os.path.abspath(
+                    os.path.join(os.path.dirname(__file__), "assets/SUSTAINicon.ico")
+                )
+                if os.path.exists(icon_path):
+                    self.root.iconbitmap(icon_path)
+            else:
+                # For macOS/Linux, use PNG format
+                png_icon_path = os.path.abspath(
+                    os.path.join(os.path.dirname(__file__), "assets/icon.png")
+                )
+                if os.path.exists(png_icon_path):
+                    img = Image.open(png_icon_path)
+                    photo = ImageTk.PhotoImage(img)
+                    self.root.iconphoto(True, photo)
+        except (tk.TclError, OSError, FileNotFoundError) as e:
+            print(f"Could not set window icon: {e}")
+        
         self.message_history = []
 
         if platform.system() == "Windows":
             try:
-                import ctypes
-                myappid = u'company.sustain.chat.1.0'
-                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-            except Exception as e:
+                myappid = 'company.sustain.chat.1.0'
+                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+                    myappid)
+            except (OSError, AttributeError) as e:
                 print(f"Failed to set application ID: {str(e)}")
 
         # Initialize token savings
@@ -39,13 +61,11 @@ class ChatApp:
         self.message_count = 0
 
         # Initialize dark mode setting
-        self.is_dark_mode = True  # Set dark mode as the default
+        self.is_dark_mode = True
 
-        # Create a top frame for the logo and info button
-        self.top_frame = tk.Frame(root)
+        self.top_frame = tk.Frame(self.root)
         self.top_frame.pack(fill=tk.X, pady=10)
 
-        # Load and display the dark mode logo
         logo_path = os.path.abspath(
             os.path.join(
                 os.path.dirname(__file__),
@@ -55,13 +75,14 @@ class ChatApp:
         if os.path.exists(logo_path):
             original_logo = Image.open(logo_path)
             max_size = (200, 200)
-            original_logo.thumbnail(max_size, Image.LANCZOS)
+            original_logo.thumbnail(max_size, Image.Resampling.LANCZOS)
             self.logo = ImageTk.PhotoImage(original_logo)
         else:
             raise FileNotFoundError(f"Logo file not found at: {logo_path}")
 
         # Logo label with dark mode background
-        self.logo_label = tk.Label(self.top_frame, image=self.logo, bg="#1e1e1e")
+        self.logo_label = tk.Label(
+            self.top_frame, image=self.logo, bg="#1e1e1e")
         self.logo_label.pack(side=tk.LEFT, padx=10)
 
         # Info button at the top-right corner
@@ -78,7 +99,7 @@ class ChatApp:
 
         # Create a chat area and entry field
         self.chat_area = scrolledtext.ScrolledText(
-            root,
+            self.root,
             wrap=tk.WORD,
             state='disabled',
             height=25,
@@ -86,13 +107,13 @@ class ChatApp:
         )
         self.chat_area.pack(padx=20, pady=10, fill=tk.BOTH, expand=True)
 
-        self.entry = tk.Entry(root, font=("Mangal_Pro", 16))
+        self.entry = tk.Entry(self.root, font=("Mangal_Pro", 16))
         self.entry.pack(padx=20, pady=10, fill=tk.X, expand=True)
         self.entry.bind("<Return>", self.send_message)
 
         # Add a label to display token percentage saved
         self.token_savings_label = tk.Label(
-            root,
+            self.root,
             text="Average token savings: 0.00%. Thank you for going green!",
             fg="#318752",
             font=("Mangal_Pro", 16)
@@ -100,8 +121,8 @@ class ChatApp:
         self.token_savings_label.pack(pady=10)
 
         # Create a menu bar
-        self.menu_bar = tk.Menu(root)
-        root.config(menu=self.menu_bar)
+        self.menu_bar = tk.Menu(self.root)
+        self.root.config(menu=self.menu_bar)
 
         # Add File menu
         self.file_menu = tk.Menu(self.menu_bar, tearoff=0)
@@ -109,7 +130,7 @@ class ChatApp:
         self.file_menu.add_command(label="Save Chat", command=self.save_chat)
         self.file_menu.add_command(label="Clear Chat", command=self.clear_chat)
         self.file_menu.add_separator()
-        self.file_menu.add_command(label="Exit", command=root.quit)
+        self.file_menu.add_command(label="Exit", command=self.root.quit)
 
         # Add Tools menu
         self.tools_menu = tk.Menu(self.menu_bar, tearoff=0)
@@ -150,22 +171,27 @@ class ChatApp:
         """Apply the selected theme (dark or light) to the application."""
         if is_dark_mode:
             # Dark mode settings
-            bg_color, fg_color, button_bg, button_fg = "#1e1e1e", "white", "#3c3c3c", "white"
-            info_button_bg = "#4CAD75"  # Green background for info button
-            logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "assets/SUSTAINOriginalWhiteTransparentCropped.png"))
+            bg_color, fg_color = "#1e1e1e", "white"
+            info_button_bg = "#4CAD75"
+            logo_path = os.path.abspath(os.path.join(os.path.dirname(
+                __file__), "assets/SUSTAINOriginalWhiteTransparentCropped.png"))
         else:
             # Light mode settings
-            bg_color, fg_color, button_bg, button_fg = "#f5f5f5", "black", "#d9d9d9", "black"
-            info_button_bg = "#4CAD75"  # Green background for info button
-            logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "assets/SUSTAINOriginalBlackTransparentCropped.png"))
+            bg_color, fg_color = "#f5f5f5", "black"
+            info_button_bg = "#4CAD75"
+            logo_path = os.path.abspath(os.path.join(os.path.dirname(
+                __file__), "assets/SUSTAINOriginalBlackTransparentCropped.png"))
 
         # Apply theme to widgets
         self.root.configure(bg=bg_color)
-        self.chat_area.configure(bg=bg_color, fg=fg_color, insertbackground=fg_color)
-        self.entry.configure(bg=bg_color, fg=fg_color, insertbackground=fg_color)
+        self.chat_area.configure(
+            bg=bg_color, fg=fg_color, insertbackground=fg_color)
+        self.entry.configure(bg=bg_color, fg=fg_color,
+                             insertbackground=fg_color)
         self.token_savings_label.configure(bg=bg_color, fg="#318752")
         self.top_frame.configure(bg=bg_color)
-        self.info_button.configure(bg=info_button_bg, fg="#4CAD75")  # Green button with white text
+
+        self.info_button.configure(bg=info_button_bg, fg="#4CAD75")
         self.menu_bar.configure(bg=bg_color, fg=fg_color)
         self.file_menu.configure(bg=bg_color, fg=fg_color)
         self.tools_menu.configure(bg=bg_color, fg=fg_color)
@@ -177,19 +203,20 @@ class ChatApp:
         if os.path.exists(logo_path):
             original_logo = Image.open(logo_path)
             max_size = (200, 200)
-            original_logo.thumbnail(max_size, Image.LANCZOS)
+            original_logo.thumbnail(max_size, Image.Resampling.LANCZOS)
             self.logo = ImageTk.PhotoImage(original_logo)
             self.logo_label.configure(image=self.logo)
         else:
-            self.display_settings_message(f"Logo file not found at: {logo_path}")
+            self.display_settings_message(
+                f"Logo file not found at: {logo_path}")
 
     def toggle_mode(self):
         """Toggle between dark and light mode."""
         self.is_dark_mode = not self.is_dark_mode
         self.apply_theme(self.is_dark_mode)
 
-    # Function to send a message to SUSTAIN
-    def send_message(self, event):
+    def send_message(self, event=None):
+        '''Send a message to the SUSTAIN API and display the response.'''
         user_input = self.entry.get()
         if user_input:
             self.message_history.append(user_input)
@@ -199,16 +226,18 @@ class ChatApp:
             math_answer = self.sustain.answer_math(user_input)
             if math_answer is not None:
                 # Display the result of the math expression directly
-                self.display_message(f"SUSTAIN: Math detected! Result: {math_answer}")
-                self.display_settings_message("You saved 100% tokens by using SUSTAIN's math optimizer!")
+                self.display_message(
+                    f"SUSTAIN: Math detected! Result: {math_answer}")
+                self.display_settings_message(
+                    "You saved 100% tokens by using SUSTAIN's math optimizer!")
                 self.entry.delete(0, tk.END)
 
                 # Update token savings to 100% for math queries
                 self.message_count += 1
                 self.total_percentage_saved += 100  # Save 100% savings for math queries
                 average_savings = self.total_percentage_saved / self.message_count
-                self.token_savings_label.config(text=f"Average token savings: {average_savings:.2f}%. Thank you for going green!")
-
+                self.token_savings_label.config(
+                    text=f"Average token savings: {average_savings:.2f}%. Thank you for going green!")
                 return  # Exit early to prevent API call
 
             # Check if user input is a special command
@@ -220,65 +249,71 @@ class ChatApp:
                 )
                 percentage_saved = 0
             else:
-                response, percentage_saved = self.sustain.get_response(user_input)
-            
+                response, percentage_saved = self.sustain.get_response(
+                    user_input)
+
             # Display the response from SUSTAIN
             self.display_message("\nSUSTAIN: " + response)
             if percentage_saved == 0:
-                self.display_settings_message("With SUSTAIN, you saved 0.00% more tokens compared to traditional AI!\n")
+                self.display_settings_message(
+                    "With SUSTAIN, you saved 0.00% more tokens compared to traditional AI!\n")
             else:
-                self.display_settings_message(f"With SUSTAIN, you saved {percentage_saved:.2f}% more tokens compared to traditional AI!\n")
+                self.display_settings_message(
+                    f"With SUSTAIN, you saved {percentage_saved:.2f}% more tokens compared to traditional AI!\n")
             self.entry.delete(0, tk.END)
 
             # Update token savings
             self.message_count += 1
             self.total_percentage_saved += percentage_saved
             average_savings = self.total_percentage_saved / self.message_count
-            self.token_savings_label.config(text=f"Average token savings: {average_savings:.2f}%. Thank you for going green!")
+            self.token_savings_label.config(
+                text=f"Average token savings: {average_savings:.2f}%. Thank you for going green!")
 
             self.track_token_length(user_input)
 
-    # Function to display a message in the chat area
     def display_message(self, message):
+        '''Display a message in the chat area.'''
         self.chat_area.config(state='normal')
         self.chat_area.insert(tk.END, message + "\n")
         self.chat_area.config(state='disabled')
         self.chat_area.yview(tk.END)
 
-    # Function to display a settings message in the chat area
     def display_settings_message(self, message):
+        '''Display a settings message in the chat area.'''
         self.chat_area.config(state='normal')
         self.chat_area.insert(tk.END, message + "\n", "grey")
         self.chat_area.tag_config("grey", foreground="grey")
         self.chat_area.config(state='disabled')
         self.chat_area.yview(tk.END)
 
-    # Function to save the chat history to a file
     def save_chat(self):
+        '''Save the chat history to a file.'''
         chat_history = self.chat_area.get("1.0", tk.END).strip()
         if chat_history:
-            file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+            file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[
+                                                     ("Text files", "*.txt"), ("All files", "*.*")])
             if file_path:
-                with open(file_path, "w") as file:
+                with open(file_path, "w", encoding="utf-8") as file:
                     file.write(chat_history)
-                self.display_settings_message(f"Chat history saved to {file_path}")
+                self.display_settings_message(
+                    f"Chat history saved to {file_path}")
 
-    # Function to clear the chat history
     def clear_chat(self):
+        '''Clear the chat area.'''
         self.chat_area.config(state='normal')
         self.chat_area.delete("1.0", tk.END)
         self.chat_area.config(state='disabled')
         self.display_settings_message("Chat history cleared.")
 
-    # Function to calculate CO2 savings based on token savings
     def calculate_co2_savings(self):
+        '''Calculate CO2 savings based on token savings.'''
         kwh_per_token_saved = 0.0001
         co2_per_kwh_saved = 0.7
 
         total_tokens_saved = 0
         for msg in self.message_history:
             original_tokens = self.sustain.count_tokens(msg)
-            optimized_input = self.sustain.text_optimizer.optimize_text(msg)  # Fix: Use text_optimizer to call optimize_text
+            optimized_input = self.sustain.text_optimizer.optimize_text(msg)
             optimized_tokens = self.sustain.count_tokens(optimized_input)
             tokens_saved = original_tokens - optimized_tokens
             total_tokens_saved += tokens_saved
@@ -346,12 +381,14 @@ class ChatApp:
         text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
+
 # Run the chat application
 if __name__ == "__main__":
     root = tk.Tk()
-    
-    def dummy_track_token_length(user_input):
-        pass
-    
+
+    def dummy_track_token_length(_user_input):
+        """Dummy function for tracking token length."""
+        return None
+
     app = ChatApp(root, dummy_track_token_length)
     root.mainloop()

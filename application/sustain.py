@@ -5,13 +5,15 @@ user input by removing unnecessary phrases and converting words to contractions
 before sending the input to the OpenAI API.
 """
 
-# Import required libraries
-import os
+import ast
 import logging
-from openai import OpenAI
+import operator
+import os
+import re
+
+import openai
 import spacy
 import tiktoken
-import re
 from word2number import w2n
 
 # Configure logging
@@ -23,12 +25,15 @@ logging.basicConfig(
 
 
 class OpenAIClient:
+    '''Client to interact with the OpenAI API.'''
+
     def __init__(self, api_key):
-        self.client = OpenAI(api_key=api_key)
+        openai.api_key = api_key
 
     def get_openai_response(self, user_input):
+        '''Get a response from the OpenAI API.'''
         try:
-            response = self.client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "user", "content": f"{user_input} in <20 words."}
@@ -36,12 +41,13 @@ class OpenAIClient:
                 max_tokens=50
             )
             return response.choices[0].message.content.strip()
-        except OpenAI.error.OpenAIError as e:
-            logging.error(f"OpenAIError: {str(e)}")
+        except openai.error.OpenAIError as e:
+            logging.error("OpenAIError: %s", str(e))
             return self.handle_api_error(e)
 
     @staticmethod
     def handle_api_error(error):
+        '''Handle errors from the OpenAI API.'''
         if error.code == 'insufficient_quota':
             return "Error: The API quota has been exceeded. Please contact SUSTAIN."
         elif error.code == 'model_not_found':
@@ -52,6 +58,8 @@ class OpenAIClient:
 
 
 class MathOptimizer:
+    '''Optimize mathematical expressions to avoid using AI.'''
+
     def __init__(self):
         # Initialize word-to-operator mappings
         self.word_to_operator = {
@@ -82,7 +90,8 @@ class MathOptimizer:
             user_input,
             flags=re.IGNORECASE
         )
-        user_input = re.sub(r'[^\w\s\+\-\*/\^\(\)]', '', user_input)  # Remove invalid characters
+        user_input = re.sub(r'[^\w\s\+\-\*/\^\(\)]', '',
+                            user_input)  # Remove invalid characters
         return ' '.join(user_input.split())  # Remove excessive spaces
 
     def recognize_math(self, user_input):
@@ -95,8 +104,8 @@ class MathOptimizer:
 
     def convert_ops(self, user_input):
         """Convert word-based operators (e.g., 'plus') to mathematical symbols (e.g., '+')."""
-        for word, operator in self.word_to_operator.items():
-            user_input = user_input.replace(word, operator)
+        for word, op in self.word_to_operator.items():
+            user_input = user_input.replace(word, op)
         return user_input
 
     def solve_math(self, user_input):
@@ -105,8 +114,8 @@ class MathOptimizer:
         input_parts = user_input.split()
 
         # Step 2: Handle word-based numbers and operators
-        for i in range(len(input_parts)):
-            number = self.convert_number(input_parts[i])
+        for i, part in enumerate(input_parts):
+            number = self.convert_number(part)
             if number is not None:
                 input_parts[i] = str(number)
 
@@ -116,13 +125,45 @@ class MathOptimizer:
         # Step 5: Safely evaluate the mathematical expression
         try:
             if re.match(r'^[\d+\-*/(). ]+$', user_input):
-                return eval(user_input)
+                return self._safe_eval(user_input)
             return "Error: Invalid math expression"
-        except Exception as e:
+        except (SyntaxError, ValueError, ZeroDivisionError, OverflowError) as e:
+            return f"Error: {str(e)}"
+
+    def _safe_eval(self, expr):
+        """Safely evaluate mathematical expressions using AST."""
+        try:
+            # Supported operations
+            operators = {
+                ast.Add: operator.add,
+                ast.Sub: operator.sub,
+                ast.Mult: operator.mul,
+                ast.Div: operator.truediv,
+                ast.Pow: operator.pow,
+                ast.USub: operator.neg,
+                ast.UAdd: operator.pos,
+            }
+
+            def _eval(node):
+                if isinstance(node, ast.Constant):  # Python 3.8+
+                    return node.value
+                elif isinstance(node, ast.Num):  # For older Python versions
+                    return node.n
+                elif isinstance(node, ast.BinOp):
+                    return operators[type(node.op)](_eval(node.left), _eval(node.right))
+                elif isinstance(node, ast.UnaryOp):
+                    return operators[type(node.op)](_eval(node.operand))
+                else:
+                    raise TypeError(f"Unsupported operation: {type(node)}")
+
+            return _eval(ast.parse(expr, mode='eval').body)
+        except (SyntaxError, ValueError, ZeroDivisionError, OverflowError) as e:
             return f"Error: {str(e)}"
 
 
 class TextOptimizer:
+    '''Optimize text for better readability and conciseness.'''
+
     def __init__(self):
         self.nlp = spacy.load("en_core_web_sm")
         self.contractions = self.load_contractions()
@@ -132,20 +173,22 @@ class TextOptimizer:
     def load_contractions():
         """Load common contractions for text optimization."""
         return {
-            "I am": "I'm", "can not": "can't", "and": "&", "will not": "won't", "do not": "don't",
-            "does not": "doesn't", "is not": "isn't", "are not": "aren't", "was not": "wasn't",
-            "were not": "weren't", "have not": "haven't", "has not": "hasn't", "had not": "hadn't",
-            "would not": "wouldn't", "should not": "shouldn't", "could not": "couldn't", "it is": "it's",
-            "that is": "that's", "what is": "what's", "where is": "where's", "who is": "who's",
-            "how is": "how's", "let us": "let's", "you are": "you're", "we are": "we're", "they are": "they're",
-            "cannot": "can't"
+            "I am": "I'm", "can not": "can't", "and": "&", "will not": "won't",
+            "do not": "don't", "does not": "doesn't", "is not": "isn't",
+            "are not": "aren't", "was not": "wasn't", "were not": "weren't",
+            "have not": "haven't", "has not": "hasn't", "had not": "hadn't",
+            "would not": "wouldn't", "should not": "shouldn't", "could not": "couldn't",
+            "it is": "it's", "that is": "that's", "what is": "what's", "where is": "where's",
+            "who is": "who's", "how is": "how's", "let us": "let's", "you are": "you're",
+            "we are": "we're", "they are": "they're", "cannot": "can't"
         }
 
     @staticmethod
     def load_phrases_to_remove():
         """Load phrases to remove from text."""
         try:
-            with open(os.path.join(os.path.dirname(__file__), 'phrases_to_remove.txt'), 'r') as file:
+            with open(os.path.join(os.path.dirname(__file__),
+              'phrases_to_remove.txt'), 'r', encoding='utf-8') as file:
                 return [line.strip() for line in file.readlines()]
         except FileNotFoundError:
             return []
@@ -153,14 +196,16 @@ class TextOptimizer:
     def optimize_text(self, text):
         """Optimize text by removing unnecessary phrases and converting to contractions."""
         for phrase in self.phrases_to_remove:
-            text = re.sub(r'\b' + re.escape(phrase) + r'\b', '', text, flags=re.IGNORECASE)
+            text = re.sub(r'\b' + re.escape(phrase) + r'\b',
+                          '', text, flags=re.IGNORECASE)
         text = self.convert_to_contractions(text)
         return ' '.join(text.split()).strip()
 
     def convert_to_contractions(self, text):
         """Convert phrases to contractions."""
         for phrase, contraction in self.contractions.items():
-            text = re.sub(r'\b' + re.escape(phrase) + r'\b', contraction, text, flags=re.IGNORECASE)
+            text = re.sub(r'\b' + re.escape(phrase) + r'\b',
+                          contraction, text, flags=re.IGNORECASE)
         return text
 
     @staticmethod
@@ -189,6 +234,7 @@ class TextOptimizer:
 
 
 class SUSTAIN:
+    '''SUSTAIN: A framework for sustainable AI interactions.'''
     def __init__(self, api_key):
         self.api_client = OpenAIClient(api_key)
         self.text_optimizer = TextOptimizer()
@@ -213,7 +259,8 @@ class SUSTAIN:
         optimized_input = self.text_optimizer.optimize_text(user_input)
         original_tokens = self.count_tokens(user_input)
         optimized_tokens = self.count_tokens(optimized_input)
-        percentage_saved = self.calculate_percentage_saved(original_tokens, optimized_tokens)
+        percentage_saved = self.calculate_percentage_saved(
+            original_tokens, optimized_tokens)
 
         response_text = self.api_client.get_openai_response(optimized_input)
 
