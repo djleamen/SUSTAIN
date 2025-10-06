@@ -1,5 +1,6 @@
-openai==0.28
+openai>=2.0.0
 python-dotenv
 spaCy
 tiktoken
 Pillow
+word2number

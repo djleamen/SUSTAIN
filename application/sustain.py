@@ -11,7 +11,7 @@ import operator
 import os
 import re
 
-import openai
+from openai import OpenAI, APIError, APIConnectionError, RateLimitError, AuthenticationError
 import spacy
 import tiktoken
 from word2number import w2n
@@ -28,20 +28,20 @@ class OpenAIClient:
     '''Client to interact with the OpenAI API.'''
 
     def __init__(self, api_key):
-        openai.api_key = api_key
+        self.client = OpenAI(api_key=api_key)
 
     def get_openai_response(self, user_input):
         '''Get a response from the OpenAI API.'''
         try:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "user", "content": f"{user_input} in <20 words."}
                 ],
                 max_tokens=50
             )
-            return response.choices[0].message.content.strip()
-        except openai.error.OpenAIError as e:
+            return response.choices[0].message.content
+        except (APIError, APIConnectionError, RateLimitError, AuthenticationError) as e:
             logging.error("OpenAIError: %s", str(e))
             return self.handle_api_error(e)
 
@@ -97,7 +97,7 @@ class MathOptimizer:
     def recognize_math(self, user_input):
         """Recognize a math expression by looking for numbers and operators."""
         math_pattern = (
-            r'(\d+|\w+)\s*(\+|\-|\*|\/|\bplus\b|\bminus\b|\btimes\b|\bdivided\b|\bto\s+the\s+power\s+of\b|\^)'
+            r'(\d+|\w+)\s*(\+|\-|\*|\/|\bplus\b|\bminus\b|\btimes\b|\bdivided\b|\bto\s+the\s+power\s+of\b|\^)' # pylint: disable=line-too-long
             r'\s*(\d+|\w+)'
         )
         return bool(re.search(math_pattern, user_input, re.IGNORECASE))
@@ -188,7 +188,7 @@ class TextOptimizer:
         """Load phrases to remove from text."""
         try:
             with open(os.path.join(os.path.dirname(__file__),
-              'phrases_to_remove.txt'), 'r', encoding='utf-8') as file:
+                                   'phrases_to_remove.txt'), 'r', encoding='utf-8') as file:
                 return [line.strip() for line in file.readlines()]
         except FileNotFoundError:
             return []
@@ -235,6 +235,7 @@ class TextOptimizer:
 
 class SUSTAIN:
     '''SUSTAIN: A framework for sustainable AI interactions.'''
+
     def __init__(self, api_key):
         self.api_client = OpenAIClient(api_key)
         self.text_optimizer = TextOptimizer()

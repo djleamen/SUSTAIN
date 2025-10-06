@@ -25,12 +25,13 @@ class ChatApp:
         self.root = root_window
         self.root.title("SUSTAIN Chat")
         self.root.geometry("800x800")
-        
+
         # Set icon based on platform
         try:
             if platform.system() == "Windows":
                 icon_path = os.path.abspath(
-                    os.path.join(os.path.dirname(__file__), "assets/SUSTAINicon.ico")
+                    os.path.join(os.path.dirname(__file__),
+                                 "assets/SUSTAINicon.ico")
                 )
                 if os.path.exists(icon_path):
                     self.root.iconbitmap(icon_path)
@@ -45,13 +46,13 @@ class ChatApp:
                     self.root.iconphoto(True, photo)
         except (tk.TclError, OSError, FileNotFoundError) as e:
             print(f"Could not set window icon: {e}")
-        
+
         self.message_history = []
 
         if platform.system() == "Windows":
             try:
                 myappid = 'company.sustain.chat.1.0'
-                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(  # type: ignore
                     myappid)
             except (OSError, AttributeError) as e:
                 print(f"Failed to set application ID: {str(e)}")
@@ -217,6 +218,7 @@ class ChatApp:
 
     def send_message(self, event=None):
         '''Send a message to the SUSTAIN API and display the response.'''
+        _ = event
         user_input = self.entry.get()
         if user_input:
             self.message_history.append(user_input)
@@ -237,14 +239,14 @@ class ChatApp:
                 self.total_percentage_saved += 100  # Save 100% savings for math queries
                 average_savings = self.total_percentage_saved / self.message_count
                 self.token_savings_label.config(
-                    text=f"Average token savings: {average_savings:.2f}%. Thank you for going green!")
+                    text=f"Average token savings: {average_savings:.2f}%. Thank you for going green!")  # pylint: disable=line-too-long
                 return  # Exit early to prevent API call
 
             # Check if user input is a special command
             if user_input.strip().lower() == "what is sustain?":
                 response = (
-                    "I am SUSTAIN, an environmentally-friendly, token-optimized AI wrapper designed to reduce compute costs "
-                    "and increase productivity. I filter out irrelevant words and phrases from prompts and limit responses to "
+                    "I am SUSTAIN, an environmentally-friendly, token-optimized AI wrapper designed to reduce compute costs " # pylint: disable=line-too-long
+                    "and increase productivity. I filter out irrelevant words and phrases from prompts and limit responses to " # pylint: disable=line-too-long
                     "essential outputs, minimizing the number of tokens used."
                 )
                 percentage_saved = 0
@@ -253,13 +255,13 @@ class ChatApp:
                     user_input)
 
             # Display the response from SUSTAIN
-            self.display_message("\nSUSTAIN: " + response)
+            self.display_message(f"\nSUSTAIN: {response}")
             if percentage_saved == 0:
                 self.display_settings_message(
                     "With SUSTAIN, you saved 0.00% more tokens compared to traditional AI!\n")
             else:
                 self.display_settings_message(
-                    f"With SUSTAIN, you saved {percentage_saved:.2f}% more tokens compared to traditional AI!\n")
+                    f"With SUSTAIN, you saved {percentage_saved:.2f}% more tokens compared to traditional AI!\n") # pylint: disable=line-too-long
             self.entry.delete(0, tk.END)
 
             # Update token savings
@@ -327,8 +329,8 @@ class ChatApp:
 
         # Display the CO2 savings message
         message = (
-            f"If you continue using SUSTAIN at this pace for a year, you will have saved approximately {total_kwh_saved:.4f} "
-            f"kWh of power, reducing {total_co2_saved:.4f} metric tons of CO2 emissions! Thank you for making a difference!"
+            f"If you continue using SUSTAIN at this pace for a year, you will have saved approximately {total_kwh_saved:.4f} " # pylint: disable=line-too-long
+            f"kWh of power, reducing {total_co2_saved:.4f} metric tons of CO2 emissions! Thank you for making a difference!" # pylint: disable=line-too-long
         )
         self.display_settings_message(message)
 
@@ -354,10 +356,10 @@ class ChatApp:
 
             "FAQs:\n"
             "What is a token?\n"
-            "  A token is a unit of text that the AI processes. Tokens can be as short as one character or as long as one word.\n\n"
+            "  A token is a unit of text that the AI processes. Tokens can be as short as one character or as long as one word.\n\n" # pylint: disable=line-too-long
 
             "Ethics Policy:\n"
-            "  We follow OpenAI's ethics policy, ensuring that our AI is used responsibly and ethically. "
+            "  We follow OpenAI's ethics policy, ensuring that our AI is used responsibly and ethically. " # pylint: disable=line-too-long
             "We prioritize user privacy and data security.\n\n"
 
             "What we cut out and why:\n"

@@ -9,10 +9,9 @@ import ctypes
 import tkinter as tk
 
 import spacy
-from spacy.cli import download
+from spacy.cli.download import download
 from chat_gui import ChatApp
 from dotenv import load_dotenv
-from PIL import Image, ImageTk
 
 # Configure logging
 log_file_path = os.path.abspath(os.path.join(
@@ -38,7 +37,7 @@ def main():
     if platform.system() == "Windows":
         try:
             myappid = 'company.sustain.chat.1.0'
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(  # type: ignore
                 myappid)
         except (OSError, AttributeError) as e:
             logging.error("Failed to set application ID: %s", str(e))
@@ -60,8 +59,7 @@ def main():
                     os.path.join(os.path.dirname(__file__), "assets/icon.png")
                 )
                 if os.path.exists(png_icon_path):
-                    img = Image.open(png_icon_path)
-                    photo = ImageTk.PhotoImage(img)
+                    photo = tk.PhotoImage(file=png_icon_path)
                     root.iconphoto(True, photo)
                 else:
                     logging.warning("PNG icon file not found, skipping icon setup")
