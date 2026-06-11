@@ -18,7 +18,8 @@ from word2number import w2n
 
 # Configure logging
 logging.basicConfig(
-    filename='../sustain.log',
+    filename=os.path.abspath(os.path.join(
+        os.path.dirname(__file__), '..', 'sustain.log')),
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
@@ -245,7 +246,12 @@ class SUSTAIN:
     def answer_math(self, user_input):
         """Answer math queries directly without calling the API."""
         if self.math_optimizer.recognize_math(user_input):
-            return self.math_optimizer.solve_math(user_input)
+            result = self.math_optimizer.solve_math(user_input)
+            # Fall back to the API for inputs that only looked like math
+            # (e.g. hyphenated words such as "state-of-the-art")
+            if result == "Error: Invalid math expression":
+                return None
+            return result
         return None
 
     def get_response(self, user_input):
