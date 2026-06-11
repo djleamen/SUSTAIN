@@ -128,8 +128,12 @@ class MathOptimizer:
             if re.match(r'^[\d+\-*/(). ]+$', user_input):
                 return self._safe_eval(user_input)
             return "Error: Invalid math expression"
-        except (SyntaxError, ValueError, ZeroDivisionError, OverflowError) as e:
+        except (ZeroDivisionError, OverflowError) as e:
+            # Genuine runtime math errors are reported directly
             return f"Error: {str(e)}"
+        except (SyntaxError, ValueError):
+            # Parse/validation failure: the input only looked like math
+            return "Error: Invalid math expression"
 
     def _safe_eval(self, expr):
         """Safely evaluate mathematical expressions using AST."""
